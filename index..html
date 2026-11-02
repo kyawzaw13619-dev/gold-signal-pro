@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101722"><title>GOLD SIGNAL PRO 0.2</title>
+<style>
+:root{color-scheme:dark;--bg:#0b111a;--panel:#141e2b;--line:#263548;--muted:#9aabc0;--text:#f3f6fb;--gold:#f3c75b;--green:#36d399;--red:#ff6878}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#111c2b,#080d14 65%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+main{max-width:650px;margin:auto;padding:18px 0 30px}.top{display:flex;justify-content:space-between;align-items:center}.brand{font-weight:850;letter-spacing:.07em}.brand span{color:var(--gold)}.tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:6px 9px}
+h1{font-size:25px;margin:18px 0 4px}.sub,.hint{color:var(--muted);font-size:12px;line-height:1.65}.card{background:rgba(20,30,43,.96);border:1px solid var(--line);border-radius:17px;padding:16px;margin:12px 0}
+h2{font-size:15px;margin:0 0 13px}.signal{display:flex;align-items:center;justify-content:space-between;gap:12px}.signal strong{font-size:28px}.signal small{display:block;color:var(--muted);margin-top:5px}.pill{border-radius:12px;padding:10px 14px;font-weight:800;background:#263548;color:var(--gold)}.pill.buy{background:#123b32;color:var(--green)}.pill.sell{background:#431f2b;color:var(--red)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.field input{width:100%;background:#0c1420;color:var(--text);border:1px solid #304258;border-radius:10px;padding:12px;font-size:16px;min-width:0}.field input:focus{outline:2px solid #477db8}
+button{border:0;border-radius:12px;padding:14px;font-size:14px;font-weight:800;width:100%;background:var(--gold);color:#1b1b1b;margin-top:10px}button.secondary{background:#243347;color:var(--text);border:1px solid var(--line)}button.danger{background:#48212a;color:#ffb7c0}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{background:#0d1622;border-radius:11px;padding:11px}.metric b{display:block;font-size:16px;margin-top:5px;overflow-wrap:anywhere}.metric span{font-size:11px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:10px 5px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}.buytxt{color:var(--green);font-weight:800}.selltxt{color:var(--red);font-weight:800}.waittxt{color:var(--gold);font-weight:800}
+.note{border-left:3px solid var(--gold);padding:9px 11px;background:#211e16;border-radius:6px;color:#e9d9ae;font-size:12px;line-height:1.6}.footer{text-align:center;color:#8393a7;font-size:11px;line-height:1.6;margin:18px 6px}
+@media(max-width:360px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}}
+</style></head>
+<body><main>
+<div class="top"><div class="brand">✦ GOLD <span>SIGNAL PRO</span></div><div class="tag">VERSION 0.2 · DEMO</div></div>
+<h1>ゴールド分析パネル</h1><p class="sub">FXGT · MT5 · XAUUSDs · M5<br>手入力した確定足の値からルール判定し、端末内に履歴を保存します。</p>
+<section class="card"><div class="signal"><div><div class="sub">最新の判定</div><strong id="sig">WAIT</strong><small id="why">データを入力して分析してください。</small></div><div class="pill" id="pill">待機</div></div></section>
+<section class="card"><h2>市場データ（確定足）</h2><div class="grid">
+<div class="field"><label>現在価格</label><input id="p" type="number" step="0.01" placeholder="例 3914.70"></div>
+<div class="field"><label>EMA 20</label><input id="e20" type="number" step="0.01"></div>
+<div class="field"><label>EMA 50</label><input id="e50" type="number" step="0.01"></div>
+<div class="field"><label>RSI 9</label><input id="r" type="number" min="0" max="100" step="0.01"></div>
+<div class="field"><label>ATR 14</label><input id="a" type="number" min="0.01" step="0.01"></div>
+<div class="field"><label>BB 中央線</label><input id="bb" type="number" step="0.01"></div>
+</div><button id="go">分析して履歴に保存</button><button class="secondary" id="reset">入力をクリア</button></section>
+<section class="card"><h2>判定・参考価格</h2><div class="metrics">
+<div class="metric"><span>トレンド</span><b id="trend">—</b></div><div class="metric"><span>RSI状態</span><b id="mom">—</b></div><div class="metric"><span>BB位置</span><b id="bbstate">—</b></div>
+<div class="metric"><span>参考SL</span><b id="sl">—</b></div><div class="metric"><span>参考TP</span><b id="tp">—</b></div><div class="metric"><span>ATR幅</span><b id="width">—</b></div>
+</div><p class="hint" id="detail">参考SLはATR×1.5、参考TPはATR×2で計算します。WAITの場合は価格を表示しません。</p></section>
+<section class="card"><h2>シグナル履歴（この端末内）</h2><p class="hint">このブラウザに保存されます。別端末とは同期されません。</p><div id="history"><p class="hint">まだ履歴はありません。</p></div><button class="secondary" id="csv">履歴をCSV出力</button><button class="danger" id="delete">履歴を削除</button></section>
+<section class="card"><h2>判定ルール v0.2</h2><p class="hint">BUY候補：価格がEMA20・EMA50・BB中央線より上、EMA20がEMA50より上、RSIが50以上70未満。SELL候補は逆方向でRSIが30超50以下。それ以外はWAIT。ローソク足の形、BB上下限、スプレッド、上位足、経済指標は未判定です。</p><div class="note">これは売買推奨ではありません。シグナルは条件一致を示すだけで、勝率や利益を保証しません。リアルタイム接続・プッシュ通知・FXGT接続はまだ未実装です。</div></section>
+<p class="footer">GOLD SIGNAL PRO · Prototype 0.2<br>本番運用前にデモ口座と十分なバックテストで検証してください。</p>
+</main>
+<script>
+const $=id=>document.getElementById(id),KEY='gsp_history_v02';
+const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}};
+const write=x=>localStorage.setItem(KEY,JSON.stringify(x));
+const n=id=>Number($(id).value),f=x=>Number(x).toFixed(2);
+function render(){let h=read();if(!h.length){$('history').innerHTML='<p class="hint">まだ履歴はありません。</p>';return}
+$('history').innerHTML='<table><thead><tr><th>日時</th><th>判定</th><th>価格</th><th>SL</th><th>TP</th></tr></thead><tbody>'+h.slice().reverse().map(x=>`<tr><td>${x.time}</td><td class="${x.side==='BUY'?'buytxt':x.side==='SELL'?'selltxt':'waittxt'}">${x.side}</td><td>${x.p}</td><td>${x.sl}</td><td>${x.tp}</td></tr>`).join('')+'</tbody></table>'}
+$('go').onclick=()=>{
+let p=n('p'),e20=n('e20'),e50=n('e50'),r=n('r'),a=n('a'),bb=n('bb');
+if([p,e20,e50,r,a,bb].some(x=>!Number.isFinite(x))||a<=0||r<0||r>100){$('why').textContent='6項目すべて入力してください。RSIは0〜100、ATRは0より大きい値です。';return}
+let buy=p>e20&&p>e50&&p>bb&&e20>e50&&r>=50&&r<70,sell=p<e20&&p<e50&&p<bb&&e20<e50&&r>30&&r<=50,side=buy?'BUY':sell?'SELL':'WAIT',sl=buy?f(p-a*1.5):sell?f(p+a*1.5):'—',tp=buy?f(p+a*2):sell?f(p-a*2):'—';
+$('sig').textContent=side;$('pill').textContent=side==='WAIT'?'待機':side==='BUY'?'買い候補':'売り候補';$('pill').className='pill '+(buy?'buy':sell?'sell':'');
+$('why').textContent=buy?'上昇条件が一致。確定足・上位足・スプレッドを確認。':sell?'下降条件が一致。確定足・上位足・スプレッドを確認。':'条件が揃っていません。待機。';
+$('trend').textContent=e20>e50?'上向き':e20<e50?'下向き':'横ばい';$('mom').textContent=r>=70?'過熱':r>50?'強気':r<=30?'弱い':r<50?'弱気':'中立';$('bbstate').textContent=p>bb?'中央線より上':p<bb?'中央線より下':'中央線付近';
+$('sl').textContent=sl;$('tp').textContent=tp;$('width').textContent=f(a*1.5);
+$('detail').textContent='確定足の入力値によるルール一致判定です。実際の発注価格・スプレッド・約定滑りを反映していません。';
+let d=new Date(),time=d.toLocaleString('ja-JP',{hour12:false});let h=read();h.push({time,side,p:f(p),sl,tp});write(h.slice(-100));render();
+};
+$('reset').onclick=()=>{['p','e20','e50','r','a','bb'].forEach(id=>$(id).value='')};
+$('delete').onclick=()=>{if(confirm('この端末内の履歴をすべて削除しますか？')){write([]);render()}};
+$('csv').onclick=()=>{let h=read();if(!h.length){alert('履歴がありません');return}let rows=[['日時','判定','価格','SL','TP'],...h.map(x=>[x.time,x.side,x.p,x.sl,x.tp])];let csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');let u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='gold_signal_pro_history.csv';a.click();URL.revokeObjectURL(u)};
+render();
+</script></body></html>
